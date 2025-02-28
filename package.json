@@ -1,0 +1,26 @@
+{
+    "name": "chatapp.backend",
+    "version": "1.0.0",
+    "main": "src/index.ts",
+    "scripts": {
+        "start": "npx tsx src/index.ts",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "",
+    "license": "ISC",
+    "description": "",
+    "dependencies": {
+        "cors": "^2.8.5",
+        "express": "^4.21.2",
+        "nodemon": "^3.1.9",
+        "socket.io": "^4.8.1"
+    },
+    "devDependencies": {
+        "@types/express": "^5.0.0",
+        "@types/swagger-jsdoc": "^6.0.4",
+        "ts-node": "^10.9.2",
+        "tsx": "^4.19.2",
+        "typescript": "^5.7.3"
+    },
+    "type": "module"
+}
