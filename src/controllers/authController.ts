@@ -10,7 +10,7 @@ export const register = async (req: Request, res: Response) => {
                 message: 'Username and password are required',
             })
             return
-        }
+        } 
 
         const user = await registerUser({ username, password })
         res.status(201).json({ message: 'User registered successfully', user })
