@@ -1,30 +1,15 @@
-import { Request, Response, NextFunction } from 'express'
-import jwt from 'jsonwebtoken'
+import * as jwt from 'jsonwebtoken'
+import { Socket } from 'socket.io'
 
-export interface AuthRequest extends Request {
-    userId?: string
-}
-
-export const authMiddleware = (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction
-): void => {
-    const token = req.header('Authorization')?.split(' ')[1] // Lấy token từ header
-
-    if (!token) {
-        res.status(401).json({ message: 'Unauthorized' })
-        return
-    }
+export const socketAuth = (socket: Socket, next: (err?: Error) => void) => {
+    const token = socket.handshake.auth.token
+    if (!token) return next(new Error('Authentication failed'))
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as {
-            userId: string
-        }
-        req.userId = decoded.userId
+        const decoded = jwt.verify(token, process.env.JWT_SECRET as string)
+        socket.data.user = decoded
         next()
     } catch (error) {
-        res.status(403).json({ message: 'Invalid token' })
-        return
+        next(new Error('Invalid token'))
     }
 }

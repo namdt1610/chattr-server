@@ -10,7 +10,7 @@ interface Props {
 export const registerUser = async ({ username, password }: Props) => {
     const hashedPassword = await bcrypt.hash(password, 10)
     const user = await User.create({ username, password: hashedPassword })
-    
+
     return {
         _id: user._id,
         username: user.username,
@@ -22,12 +22,14 @@ export const loginUser = async ({ username, password }: Props) => {
     if (!user || !(await bcrypt.compare(password, user.password))) {
         throw new Error('Invalid credentials')
     }
+
     const token = jwt.sign(
-        { userId: user._id },
+        { userId: user._id, username: user.username },
         process.env.JWT_SECRET as string,
         {
             expiresIn: '7d',
         }
     )
-    return { token, userId: user._id }
+
+    return { token }
 }
