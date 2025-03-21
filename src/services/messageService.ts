@@ -45,7 +45,7 @@ class MessageService {
             .populate('senderId', 'username')
             .populate('receiverId', 'username')
             .sort({ createdAt: 1 })
-        // console.log(res)
+        // console.log(data)
         return data
     }
 }
