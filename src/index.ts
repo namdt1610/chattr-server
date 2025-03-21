@@ -1,11 +1,9 @@
 import { server } from './server'
-import { initSocket } from './socket/socket'
 
-const PORT: number = Number(process.env.PORT) || 3000
+const PORT = 5050
 
-// Khởi động WebSocket
-initSocket(server)
+console.log('🔥 Express server initialized, awaiting WebSocket setup...')
 
-server.listen(PORT, () =>
+server.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`)
-)
+})
