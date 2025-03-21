@@ -5,7 +5,8 @@ import connectDB from './config/db'
 import authRoutes from './routes/authRoutes'
 import userRoutes from './routes/userRoutes'
 import chatRoutes from './routes/messageRoutes'
-import setupSocket from './socket'
+import setupSocket from './config/socket'
+import redisClient from './config/redis'
 
 const app = express()
 const server = createServer(app)
@@ -25,5 +26,6 @@ app.use('/api/users', userRoutes)
 app.use('/api/messages', chatRoutes)
 
 setupSocket(server)
+redisClient.on('connect', () => { })
 
 export { app, server }

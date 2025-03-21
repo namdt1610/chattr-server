@@ -1,35 +1,93 @@
 import User from '@/models/User'
 import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
+import TokenService from './tokenService'
 
 interface Props {
     username: string
     password: string
 }
 
+interface AuthResponse {
+    accessToken: string;
+    refreshToken: string;
+    user: {
+        userId: string;
+        username: string;
+    };
+}
+
 export const registerUser = async ({ username, password }: Props) => {
     const hashedPassword = await bcrypt.hash(password, 10)
     const user = await User.create({ username, password: hashedPassword })
 
+    const accessToken = TokenService.generateAccessToken(user._id.toString(), user.username);
+    const refreshToken = await TokenService.generateRefreshToken(user._id.toString());
+
     return {
-        _id: user._id,
-        username: user.username,
+        accessToken,
+        refreshToken,
+        user: {
+            userId: user._id,
+            username: user.username,
+        }
     }
 }
 
-export const loginUser = async ({ username, password }: Props) => {
+export const loginUser = async ({ username, password }: Props): Promise<AuthResponse> => {
     const user = await User.findOne({ username })
     if (!user || !(await bcrypt.compare(password, user.password))) {
         throw new Error('Invalid credentials')
     }
 
-    const token = jwt.sign(
-        { userId: user._id, username: user.username },
-        process.env.JWT_SECRET as string,
-        {
-            expiresIn: '7d',
-        }
-    )
+    const accessToken = TokenService.generateAccessToken(user._id.toString(), user.username);
+    const refreshToken = await TokenService.generateRefreshToken(user._id.toString());
 
-    return { token }
+    return {
+        accessToken,
+        refreshToken,
+        user: {
+            userId: user._id.toString(),
+            username: user.username,
+        }
+    }
+}
+
+export const refreshTokens = async (refreshToken: string): Promise<AuthResponse | null> => {
+    const result = await TokenService.verifyRefreshToken(refreshToken);
+    
+    if (!result) {
+        return null;
+    }
+    
+    const { userId } = result;
+    
+    // Lấy thông tin user
+    const user = await User.findById(userId);
+    if (!user) {
+        return null;
+    }
+    
+    // Revoke token cũ
+    await TokenService.revokeRefreshToken(refreshToken);
+    
+    // Tạo cặp token mới
+    const accessToken = TokenService.generateAccessToken(userId, user.username);
+    const newRefreshToken = await TokenService.generateRefreshToken(userId);
+    
+    return {
+        accessToken,
+        refreshToken: newRefreshToken,
+        user: {
+            userId: user._id.toString(),
+            username: user.username,
+        }
+    }
+}
+
+export const logout = async (refreshToken: string): Promise<boolean> => {
+    return TokenService.revokeRefreshToken(refreshToken);
+}
+
+export const logoutAll = async (userId: string): Promise<boolean> => {
+    return TokenService.revokeAllUserTokens(userId);
 }
