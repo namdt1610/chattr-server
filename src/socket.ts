@@ -1,7 +1,6 @@
 import { Server as HttpServer } from 'http'
 import { Server, Socket } from 'socket.io'
 import jwt, { JwtPayload } from 'jsonwebtoken'
-import cookie from 'cookie'
 
 interface CustomSocket extends Socket {
     user?: {
@@ -25,8 +24,6 @@ export default function setupSocket(server: HttpServer) {
     io.on('connection', (socket: CustomSocket) => {
         console.log('New client connected:', socket.id)
 
-        // const cookies = cookie.parse(socket.handshake.headers.cookie || '')
-        // const token = cookies.token
         const token = socket.handshake.auth.token
 
         if (!token) {

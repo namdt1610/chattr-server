@@ -4,7 +4,9 @@ import MessageService from '../services/messageService'
 class MessageController {
     // API gửi tin nhắn
     async sendMessage(req: Request, res: Response): Promise<void> {
-        const { senderUsername, receiverUsername, content } = req.body
+        const { receiverUsername, content } = req.body
+        const senderUsername = req.user!.username;
+
         try {
             const message = await MessageService.saveMessage(
                 senderUsername,
@@ -23,7 +25,9 @@ class MessageController {
 
     // API lấy lịch sử tin nhắn
     async getMessageHistory(req: Request, res: Response): Promise<void> {
-        const { senderUsername, receiverUsername } = req.query
+        const { receiverUsername } = req.query
+        const senderUsername = req.user!.username;
+
         try {
             const messages = await MessageService.getMessageHistory(
                 senderUsername as string,
