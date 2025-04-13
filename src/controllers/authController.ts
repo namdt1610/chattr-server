@@ -39,6 +39,13 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         }
 
         const auth = await loginUser({ username, password })
+        res.cookie('refreshToken', auth.refreshToken, {
+            expires: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', // Set to true in production
+            sameSite: 'strict',
+        })
+
 
         res.status(200).json({
             message: 'Login successful',
@@ -83,7 +90,8 @@ export const refresh = async (req: Request, res: Response): Promise<void> => {
 
 export const logoutUser = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { refreshToken } = req.body;
+        const { refreshToken } = req.cookies;
+        console.log('Refresh token from cookies:', refreshToken);
 
         if (!refreshToken) {
             res.status(400).json({ message: 'Refresh token is required' });
@@ -107,12 +115,12 @@ export const logoutUser = async (req: Request, res: Response): Promise<void> => 
 
 export const logoutAllDevices = async (req: Request, res: Response): Promise<void> => {
     try {
-        if (!req.user || !req.user.userId) {
+        if (!req.user || !req.user.id) {
             res.status(401).json({ message: 'Unauthorized' });
             return
         }
 
-        const success = await logoutAll(req.user.userId);
+        const success = await logoutAll(req.user.id);
 
         if (!success) {
             res.status(400).json({ message: 'Error logging out all devices' });
@@ -137,7 +145,7 @@ export const me = async (req: Request, res: Response): Promise<void> => {
         // Trả về thông tin user
         res.status(200).json({
             user: {
-                userId: req.user.userId,
+                _id: req.user.id,
                 username: req.user.username,
                 role: req.user.role || 'user',
             },

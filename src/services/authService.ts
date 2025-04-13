@@ -11,7 +11,7 @@ interface AuthResponse {
     accessToken: string;
     refreshToken: string;
     user: {
-        userId: string;
+        _id: string;
         username: string;
     };
 }
@@ -27,7 +27,7 @@ export const registerUser = async ({ username, password }: Props) => {
         accessToken,
         refreshToken,
         user: {
-            userId: user._id,
+            id: user._id,
             username: user.username,
         }
     }
@@ -46,7 +46,7 @@ export const loginUser = async ({ username, password }: Props): Promise<AuthResp
         accessToken,
         refreshToken,
         user: {
-            userId: user._id.toString(),
+            _id: user._id.toString(),
             username: user.username,
         }
     }
@@ -78,7 +78,7 @@ export const refreshTokens = async (refreshToken: string): Promise<AuthResponse 
         accessToken,
         refreshToken: newRefreshToken,
         user: {
-            userId: user._id.toString(),
+            _id: user._id.toString(),
             username: user.username,
         }
     }

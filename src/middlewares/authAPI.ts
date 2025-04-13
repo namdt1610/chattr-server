@@ -6,7 +6,7 @@ declare global {
       namespace Express {
             interface Request {
                   user?: {
-                        userId: string;
+                        id: string;
                         username: string;
                         role?: string;
                   };
@@ -29,7 +29,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction):
 
             // Lưu thông tin user vào request để sử dụng trong controllers
             req.user = {
-                  userId: decoded.userId,
+                  id: decoded.userId,
                   username: decoded.username,
                   role: decoded.role
             };
@@ -39,4 +39,4 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction):
             res.status(401).json({ success: false, message: 'Invalid token' });
             return
       }
-};
+}

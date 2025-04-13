@@ -67,6 +67,17 @@ export default function setupSocket(server: HttpServer) {
             )
         })
 
+        // 
+        socket.on('typing', (username: string, conversationId) => {
+            console.log(`${username} is typing...`)
+            io.to(conversationId).emit('typing', username)
+        })
+
+        socket.on('seen', (username: string) => {
+            console.log(`${username} seen the message`)
+            socket.broadcast.emit('seen', username)
+        })
+
         // Lắng nghe tin nhắn riêng tư
         socket.on('private_message', ({ to, message }) => {
             console.log(`📨 Server nhận tin nhắn từ ${socket.user?.username} gửi đến ${to}: ${message}`)

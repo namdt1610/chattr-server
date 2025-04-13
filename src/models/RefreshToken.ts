@@ -39,7 +39,6 @@ const refreshTokenSchema = new mongoose.Schema<IRefreshToken>({
 });
 
 // Index cho việc tìm kiếm và cleanup
-refreshTokenSchema.index({ token: 1 });
 refreshTokenSchema.index({ userId: 1 });
 refreshTokenSchema.index({ expiresAt: 1 });
 
