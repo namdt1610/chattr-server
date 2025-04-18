@@ -1,16 +1,13 @@
 import { Router } from 'express'
 import MessageController from '../controllers/messageController'
 import { authMiddleware } from '@/middlewares/authAPI'
+import { upload } from '@/config/multer'
 
 const router = Router()
 
-// Middleware để xác thực token
 router.use(authMiddleware)
-
-// Route để gửi tin nhắn
-router.post('/send', MessageController.sendMessage)
-
-// Route để lấy lịch sử tin nhắn
+router.get('/recent-chats/:userId', MessageController.getRecentChats)
+router.post('/send', upload.array('attachments'), MessageController.sendMessage)
 router.get('/history', MessageController.getMessageHistory)
 
 export default router
