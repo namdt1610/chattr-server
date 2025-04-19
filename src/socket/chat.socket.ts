@@ -13,7 +13,9 @@ export function handleChatEvents(io: Server, socket: CustomSocket) {
         socket
             .to(conversationId)
             .emit('chat:typing', { userId: socket.user?.userId, isTyping })
-        console.log(`💬 ${socket.user?.username} is typing...`)
+        isTyping
+            ? console.log(`💬 ${socket.user?.username} is typing...`)
+            : console.log(`💬 ${socket.user?.username} stopped typing!`)
     })
 
     socket.on('chat:seen', ({ conversationId }) => {
