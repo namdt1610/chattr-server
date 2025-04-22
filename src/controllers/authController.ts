@@ -3,7 +3,7 @@ import { registerUser, loginUser, refreshTokens, logout, logoutAll } from '@/ser
 
 export const register = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { username, password } = req.body
+        const { username, password, email } = req.body
 
         if (!username || !password) {
             res.status(400).json({
@@ -12,7 +12,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
             return
         }
 
-        const auth = await registerUser({ username, password })
+        const auth = await registerUser({ username, password, email })
 
         res.status(201).json({
             message: 'User registered successfully',

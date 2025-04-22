@@ -1,10 +1,12 @@
 import { User } from '@/models/User'
 import bcrypt from 'bcryptjs'
 import TokenService from './tokenService'
+import EmailService from './emailService'
 
 interface Props {
     username: string
     password: string
+    email?: string
 }
 
 interface AuthResponse {
@@ -16,7 +18,7 @@ interface AuthResponse {
     }
 }
 
-export const registerUser = async ({ username, password }: Props) => {
+export const registerUser = async ({ username, password, email }: Props) => {
     const hashedPassword = await bcrypt.hash(password, 10)
     const user = await User.create({ username, password: hashedPassword })
 
@@ -27,6 +29,15 @@ export const registerUser = async ({ username, password }: Props) => {
     const refreshToken = await TokenService.generateRefreshToken(
         user._id.toString()
     )
+
+    if (email) {
+        try {
+            await EmailService.sendWelcomeEmail(email, username)
+        } catch (error) {
+            console.error('Failed to send welcome email:', error)
+            // Không ảnh hưởng đến quá trình đăng ký
+        }
+    }
 
     return {
         accessToken,
