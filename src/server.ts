@@ -23,6 +23,10 @@ const corsOptions = {
 
 app.use(cors(corsOptions))
 app.use(express.json())
+
+app.get('/', (req, res) => {
+    res.send('Your Chattr is running, wish you a good day!')
+})
 app.use('/api/auth', authRoutes)
 app.use('/api/users', userRoutes)
 app.use('/api/messages', chatRoutes)
