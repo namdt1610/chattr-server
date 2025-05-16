@@ -13,7 +13,10 @@ const server = createServer(app)
 connectDB()
 
 const corsOptions = {
-    origin: 'http://localhost:3000',
+    origin: [
+        'http://localhost:3000',
+        'https://chattr-namdt1610s-projects.vercel.app',
+    ],
     methods: ['GET', 'POST'],
     credentials: true,
 }
