@@ -25,15 +25,15 @@ export const register = async (req: Request, res: Response) => {
         // Set cookies
         res.cookie('access_token', access_token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
+            secure: true,
+            sameSite: 'none',
             maxAge: 15 * 60 * 1000, // 15 minutes
         })
 
         res.cookie('refresh_token', refresh_token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
+            secure: true,
+            sameSite: 'none',
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         })
 
@@ -71,15 +71,15 @@ export const login = async (req: Request, res: Response) => {
         // Set cookies
         res.cookie('access_token', access_token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
+            secure: true,
+            sameSite: 'none',
             maxAge: 15 * 60 * 1000, // 15 minutes
         })
 
         res.cookie('refresh_token', refresh_token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
+            secure: true,
+            sameSite: 'none',
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         })
 
@@ -181,8 +181,8 @@ export const refreshToken = async (
         // Set new access token cookie
         res.cookie('access_token', access_token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
+            secure: true,
+            sameSite: 'none',
             maxAge: 15 * 60 * 1000, // 15 minutes
         })
 
