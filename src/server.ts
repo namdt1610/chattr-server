@@ -1,6 +1,7 @@
 import express from 'express'
 import { createServer } from 'http'
 import cors from 'cors'
+import cookieParser from 'cookie-parser'
 import connectDB from './config/db'
 import authRoutes from './routes/authRoutes'
 import userRoutes from './routes/userRoutes'
@@ -23,6 +24,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions))
 app.use(express.json())
+app.use(cookieParser())
 
 app.get('/', (req, res) => {
     res.send('Your Chattr is running, wish you a good day!')

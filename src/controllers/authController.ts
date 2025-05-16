@@ -15,7 +15,34 @@ export const register = async (req: Request, res: Response) => {
         }
 
         const user = await registerUser({ username, password })
-        res.status(201).json({ message: 'User registered successfully', user })
+
+        // Generate tokens after successful registration
+        const { access_token, refresh_token } = await loginUser({
+            username,
+            password,
+        })
+
+        // Set cookies
+        res.cookie('access_token', access_token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 15 * 60 * 1000, // 15 minutes
+        })
+
+        res.cookie('refresh_token', refresh_token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        })
+
+        res.status(201).json({
+            message: 'User registered successfully',
+            user,
+            access_token,
+            refresh_token,
+        })
         return
     } catch (error: any) {
         res.status(500).json({
@@ -36,17 +63,30 @@ export const login = async (req: Request, res: Response) => {
             return
         }
 
-        const token = await loginUser({ username, password })
+        const { access_token, refresh_token } = await loginUser({
+            username,
+            password,
+        })
 
-        // res.cookie('token', token, {
-        //     httpOnly: true,
-        //     secure: process.env.NODE_ENV === 'production',
-        //     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 ngày
-        // })
+        // Set cookies
+        res.cookie('access_token', access_token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 15 * 60 * 1000, // 15 minutes
+        })
+
+        res.cookie('refresh_token', refresh_token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        })
 
         res.status(200).json({
             message: 'Login successful',
-            token: token,
+            access_token,
+            refresh_token,
             user: username,
         })
         return
@@ -60,16 +100,21 @@ export const login = async (req: Request, res: Response) => {
 
 export const me = async (req: Request, res: Response): Promise<void> => {
     try {
-        // const cookies = cookie.parse(req.headers.cookie || '')
-        // const token = cookies.token
-        const authHeader = req.headers.authorization
+        // Check for token in cookies first
+        const cookies = cookie.parse(req.headers.cookie || '')
+        let token = cookies.access_token
 
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            res.status(401).json({ message: 'Unauthorized' })
-            return
+        // If no token in cookies, check Authorization header
+        if (!token) {
+            const authHeader = req.headers.authorization
+
+            if (!authHeader || !authHeader.startsWith('Bearer ')) {
+                res.status(401).json({ message: 'Unauthorized' })
+                return
+            }
+
+            token = authHeader.split(' ')[1]
         }
-
-        const token = authHeader.split(' ')[1]
 
         if (!token) {
             res.status(401).json({ message: 'Unauthorized' })
@@ -97,6 +142,73 @@ export const me = async (req: Request, res: Response): Promise<void> => {
     } catch (error: any) {
         res.status(401).json({
             message: 'Invalid token or expired',
+        })
+    }
+}
+
+export const refreshToken = async (
+    req: Request,
+    res: Response
+): Promise<void> => {
+    try {
+        const cookies = cookie.parse(req.headers.cookie || '')
+        const refreshToken = cookies.refresh_token
+
+        if (!refreshToken) {
+            res.status(401).json({ message: 'Refresh token required' })
+            return
+        }
+
+        // Verify refresh token
+        const decoded = jwt.verify(
+            refreshToken,
+            (process.env.JWT_REFRESH_SECRET as string) ||
+                (process.env.JWT_SECRET as string)
+        ) as any
+
+        if (!decoded || !decoded.userId) {
+            res.status(401).json({ message: 'Invalid refresh token' })
+            return
+        }
+
+        // Generate new access token
+        const access_token = jwt.sign(
+            { userId: decoded.userId },
+            process.env.JWT_SECRET as string,
+            { expiresIn: '15m' }
+        )
+
+        // Set new access token cookie
+        res.cookie('access_token', access_token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 15 * 60 * 1000, // 15 minutes
+        })
+
+        res.status(200).json({
+            message: 'Token refreshed successfully',
+            access_token,
+        })
+    } catch (error: any) {
+        res.status(401).json({
+            message: error.message || 'Invalid refresh token',
+        })
+    }
+}
+
+export const logout = async (req: Request, res: Response): Promise<void> => {
+    try {
+        // Clear both access and refresh token cookies
+        res.clearCookie('access_token')
+        res.clearCookie('refresh_token')
+
+        res.status(200).json({
+            message: 'Logged out successfully',
+        })
+    } catch (error: any) {
+        res.status(500).json({
+            message: error.message || 'Error during logout',
         })
     }
 }

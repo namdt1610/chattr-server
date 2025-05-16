@@ -23,13 +23,22 @@ export const loginUser = async ({ username, password }: Props) => {
         throw new Error('Invalid credentials')
     }
 
-    const token = jwt.sign(
+    const access_token = jwt.sign(
         { userId: user._id, username: user.username },
         process.env.JWT_SECRET as string,
         {
-            expiresIn: '7d',
+            expiresIn: '15m', // Short lived access token
         }
     )
 
-    return { token }
+    const refresh_token = jwt.sign(
+        { userId: user._id },
+        (process.env.JWT_REFRESH_SECRET as string) ||
+            (process.env.JWT_SECRET as string),
+        {
+            expiresIn: '7d', // Longer lived refresh token
+        }
+    )
+
+    return { access_token, refresh_token }
 }
