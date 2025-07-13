@@ -40,5 +40,12 @@ export const loginUser = async ({ username, password }: Props) => {
         }
     )
 
-    return { access_token, refresh_token }
+    return {
+        access_token,
+        refresh_token,
+        user: {
+            _id: user._id,
+            username: user.username,
+        },
+    }
 }

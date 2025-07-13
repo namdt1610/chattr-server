@@ -15,10 +15,10 @@ export const register = async (req: Request, res: Response) => {
             return
         }
 
-        const user = await registerUser({ username, password })
+        const createdUser = await registerUser({ username, password })
 
         // Generate tokens after successful registration
-        const { access_token, refresh_token } = await loginUser({
+        const { access_token, refresh_token, user } = await loginUser({
             username,
             password,
         })
@@ -62,7 +62,7 @@ export const login = async (req: Request, res: Response) => {
             return
         }
 
-        const { access_token, refresh_token } = await loginUser({
+        const { access_token, refresh_token, user } = await loginUser({
             username,
             password,
         })
@@ -82,7 +82,9 @@ export const login = async (req: Request, res: Response) => {
 
         res.status(200).json({
             message: 'Login successful',
-            user: username,
+            user,
+            access_token,
+            refresh_token,
         })
         return
     } catch (error: any) {
