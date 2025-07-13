@@ -2,6 +2,7 @@ import { Request, Response } from 'express'
 import { registerUser, loginUser } from '@/services/authService'
 import cookie from 'cookie'
 import jwt from 'jsonwebtoken'
+import { getCookieOptions, getClearCookieOptions } from '@/config/cookieConfig'
 
 export const register = async (req: Request, res: Response) => {
     try {
@@ -23,19 +24,17 @@ export const register = async (req: Request, res: Response) => {
         })
 
         // Set cookies
-        res.cookie('access_token', access_token, {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'none',
-            maxAge: 15 * 60 * 1000, // 15 minutes
-        })
+        res.cookie(
+            'access_token',
+            access_token,
+            getCookieOptions(15 * 60 * 1000)
+        )
 
-        res.cookie('refresh_token', refresh_token, {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'none',
-            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        })
+        res.cookie(
+            'refresh_token',
+            refresh_token,
+            getCookieOptions(7 * 24 * 60 * 60 * 1000)
+        )
 
         res.status(201).json({
             message: 'User registered successfully',
@@ -69,19 +68,17 @@ export const login = async (req: Request, res: Response) => {
         })
 
         // Set cookies
-        res.cookie('access_token', access_token, {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'none',
-            maxAge: 15 * 60 * 1000, // 15 minutes
-        })
+        res.cookie(
+            'access_token',
+            access_token,
+            getCookieOptions(15 * 60 * 1000)
+        )
 
-        res.cookie('refresh_token', refresh_token, {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'none',
-            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        })
+        res.cookie(
+            'refresh_token',
+            refresh_token,
+            getCookieOptions(7 * 24 * 60 * 60 * 1000)
+        )
 
         res.status(200).json({
             message: 'Login successful',
@@ -177,12 +174,11 @@ export const refreshToken = async (
         )
 
         // Set new access token cookie
-        res.cookie('access_token', access_token, {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'none',
-            maxAge: 15 * 60 * 1000, // 15 minutes
-        })
+        res.cookie(
+            'access_token',
+            access_token,
+            getCookieOptions(15 * 60 * 1000)
+        )
 
         res.status(200).json({
             message: 'Token refreshed successfully',
@@ -198,8 +194,8 @@ export const refreshToken = async (
 export const logout = async (req: Request, res: Response): Promise<void> => {
     try {
         // Clear both access and refresh token cookies
-        res.clearCookie('access_token')
-        res.clearCookie('refresh_token')
+        res.clearCookie('access_token', getClearCookieOptions())
+        res.clearCookie('refresh_token', getClearCookieOptions())
 
         res.status(200).json({
             message: 'Logged out successfully',

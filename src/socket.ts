@@ -16,7 +16,10 @@ let users: { [username: string]: string } = {} // Lưu socketId theo username
 export default function setupSocket(server: HttpServer) {
     const io = new Server(server, {
         cors: {
-            origin: 'http://localhost:3000',
+            origin:
+                process.env.NODE_ENV === 'production'
+                    ? ['https://chattr-namdt1610s-projects.vercel.app']
+                    : ['http://localhost:3000'],
             methods: ['GET', 'POST'],
             credentials: true,
         },
@@ -72,7 +75,9 @@ export default function setupSocket(server: HttpServer) {
 
         // Lắng nghe tin nhắn riêng tư
         socket.on('private_message', ({ to, message }) => {
-            console.log(`📨 Server nhận tin nhắn từ ${socket.user?.username} gửi đến ${to}: ${message}`)
+            console.log(
+                `📨 Server nhận tin nhắn từ ${socket.user?.username} gửi đến ${to}: ${message}`
+            )
             if (!socket.user) {
                 console.log('⚠️ User not authenticated. Message not sent.')
                 return
