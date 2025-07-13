@@ -131,7 +131,7 @@ export const me = async (req: Request, res: Response): Promise<void> => {
         // Trả về thông tin user
         res.status(200).json({
             user: {
-                userId: decoded.userId,
+                _id: decoded.userId,
                 username: decoded.username,
                 role: decoded.role || 'user',
             },
